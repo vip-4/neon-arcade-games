@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NEON QUIZ // CYBERPUNK TRIVIA</title>
+    <meta name="description" content="NEON QUIZ is a cyberpunk trivia game. Test your knowledge of sci-fi, technology, and neon culture. Free browser-based quiz game.">
+    <meta name="keywords" content="quiz game, cyberpunk game, browser game, trivia game, neon game, free online game, static HTML game, knowledge game">
+    <meta name="author" content="Neon Arcade">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://neon-quiz.pages.dev/">
+    <meta property="og:title" content="NEON QUIZ - Cyberpunk Trivia Game">
+    <meta property="og:description" content="Test your cyberpunk knowledge with this neon trivia quiz.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://neon-quiz.pages.dev/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="NEON QUIZ - Cyberpunk Trivia Game">
+    <meta name="twitter:description" content="Test your cyberpunk knowledge with this neon trivia quiz.">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+        :root {
+            --neon-cyan: #0ff;
+            --neon-magenta: #f0f;
+            --neon-yellow: #ff0;
+            --neon-purple: #b0f;
+            --dark-bg: #0a0a0f;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--dark-bg);
+            color: var(--neon-cyan);
+            font-family: 'Share Tech Mono', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .chromatic-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0.05em 0 0 rgba(255,0,0,0.75), -0.05em -0.025em 0 rgba(0,255,255,0.75), 0.025em 0.05em 0 rgba(0,255,0,0.75);
+            animation: glitch 2s infinite linear alternate-reverse;
+        }
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+        .subtitle {
+            font-size: 1rem;
+            color: var(--neon-magenta);
+            margin-top: 0.5rem;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            text-shadow: 0.05em 0 0 rgba(255,0,255,0.5), -0.05em 0 0 rgba(0,255,255,0.5);
+        }
+        .game-container {
+            background: #000;
+            border: 3px solid var(--neon-cyan);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 0 30px rgba(0,255,255,0.3), inset 0 0 20px rgba(0,255,255,0.1);
+            position: relative;
+            max-width: 95vw;
+        }
+        .game-container::before {
+            content: "";
+            position: absolute;
+            top: -3px; left: -3px; right: -3px; bottom: -3px;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta), var(--neon-yellow), var(--neon-cyan));
+            background-size: 400% 400%;
+            border-radius: 18px;
+            z-index: -1;
+            animation: borderGlow 4s ease infinite;
+        }
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; opacity: 0.5; }
+            50% { background-position: 100% 50%; opacity: 1; }
+        }
+        .info-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: rgba(0,255,255,0.05);
+            border: 1px dashed var(--neon-cyan);
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .score-display {
+            font-size: 1.3rem;
+            color: var(--neon-yellow);
+            font-weight: 700;
+            text-shadow: 0.05em 0 0 rgba(255,255,0,0.75), -0.05em 0 0 rgba(255,0,255,0.75);
+        }
+        .question-text {
+            font-size: 1.2rem;
+            text-align: center;
+            margin: 1.5rem 0;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 15px var(--neon-cyan);
+            line-height: 1.6;
+            min-height: 3rem;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .option-btn {
+            background: rgba(0,255,255,0.08);
+            border: 2px solid var(--neon-purple);
+            border-radius: 12px;
+            padding: 1rem;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-shadow: 0 0 10px var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(176,0,255,0.3);
+        }
+        .option-btn:hover {
+            background: rgba(0,255,255,0.2);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 25px rgba(0,255,255,0.5);
+            transform: translateY(-2px);
+        }
+        .option-btn.correct {
+            background: rgba(0,255,0,0.3);
+            border-color: #0f0;
+            box-shadow: 0 0 25px rgba(0,255,0,0.6);
+            color: #0f0;
+        }
+        .option-btn.wrong {
+            background: rgba(255,0,0,0.3);
+            border-color: #f00;
+            box-shadow: 0 0 25px rgba(255,0,0,0.6);
+            color: #f00;
+        }
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        .btn {
+            background: transparent;
+            border: 2px solid var(--neon-yellow);
+            color: var(--neon-yellow);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            text-shadow: 0 0 10px var(--neon-yellow);
+            box-shadow: 0 0 15px rgba(255,255,0,0.3);
+            border-radius: 8px;
+        }
+        .btn:hover { background: var(--neon-yellow); color: #000; box-shadow: 0 0 30px rgba(255,255,0,0.8); }
+        .instructions {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--neon-cyan);
+            opacity: 0.8;
+            text-align: center;
+            line-height: 1.6;
+        }
+        .game-over-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            z-index: 100;
+            display: none;
+        }
+        .game-over-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--neon-yellow);
+            text-shadow: 0.05em 0 0 rgba(255,0,0,0.75), -0.05em -0.025em 0 rgba(0,255,255,0.75), 0.025em 0.05em 0 rgba(0,255,0,0.75);
+            animation: glitch 0.5s infinite;
+        }
+        .final-score {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: var(--neon-magenta);
+            margin-top: 1rem;
+        }
+        @media (max-width: 640px) {
+            .chromatic-text { font-size: 2rem; }
+            .subtitle { font-size: 0.8rem; letter-spacing: 0.3em; }
+            .options-grid { grid-template-columns: 1fr; }
+            .question-text { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center;">
+        <div class="chromatic-text">NEON QUIZ</div>
+        <div class="subtitle">CYBERPUNK EDITION</div>
+    </div>
+
+    <div class="game-container">
+        <div class="info-panel">
+            <div class="score-display">SCORE: <span id="score">0</span></div>
+            <div class="score-display">QUESTION: <span id="questionNum">1</span>/10</div>
+            <div class="score-display">BEST: <span id="highScore">0</span></div>
+        </div>
+        <div class="question-text" id="questionText">PRESS START TO BEGIN</div>
+        <div class="options-grid" id="optionsGrid"></div>
+        <div class="controls">
+            <button class="btn" id="startBtn">START</button>
+        </div>
+        <div class="instructions">
+            ANSWER TRIVIA QUESTIONS ABOUT CYBERPUNK, TECH, AND NEON CULTURE<br>
+            10 QUESTIONS • 4 OPTIONS EACH
+        </div>
+        <div class="game-over-overlay" id="gameOverOverlay">
+            <div class="game-over-text">QUIZ COMPLETE</div>
+            <div class="final-score">SCORE: <span id="finalScore">0</span>/10</div>
+            <button class="btn" id="restartBtn" style="margin-top: 1.5rem;">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "What year is the classic cyberpunk movie 'Blade Runner' set in?", options: ["2019", "2049", "2077", "2021"], answer: 0 },
+            { q: "What does 'VPN' stand for?", options: ["Virtual Private Network", "Very Personal Node", "Vector Processing Node", "Virtual Protocol Net"], answer: 0 },
+            { q: "In 'The Matrix', what color is the pill Neo takes?", options: ["Red", "Blue", "Green", "Yellow"], answer: 0 },
+            { q: "What is the term for a network of connected devices?", options: ["Internet of Things", "Neural Net", "Grid System", "Data Web"], answer: 0 },
+            { q: "What programming language is known as the 'language of the web'?", options: ["JavaScript", "Python", "C++", "Java"], answer: 0 },
+            { q: "What does 'AI' stand for?", options: ["Artificial Intelligence", "Automated Interface", "Advanced Integration", "Analog Input"], answer: 0 },
+            { q: "In cyberpunk, what is a 'deck'?", options: ["A computer interface", "A card game", "A spaceship", "A weapon"], answer: 0 },
+            { q: "What is the fastest type of computer memory?", options: ["RAM", "Cache", "SSD", "Hard Drive"], answer: 1 },
+            { q: "What does 'HTTP' stand for?", options: ["HyperText Transfer Protocol", "High Tech Transfer Program", "HyperText Transmission Process", "High Transfer Text Protocol"], answer: 0 },
+            { q: "What is the main character's name in 'Cyberpunk 2077'?", options: ["V", "Johnny", "Silverhand", "Judy"], answer: 0 }
+        ];
+
+        const questionText = document.getElementById('questionText');
+        const optionsGrid = document.getElementById('optionsGrid');
+        const scoreDisplay = document.getElementById('score');
+        const questionNumDisplay = document.getElementById('questionNum');
+        const highScoreDisplay = document.getElementById('highScore');
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const gameOverOverlay = document.getElementById('gameOverOverlay');
+        const finalScoreDisplay = document.getElementById('finalScore');
+
+        let currentQuestion = 0;
+        let score = 0;
+        let highScore = parseInt(localStorage.getItem('quizHighScore')) || 0;
+        let gameRunning = false;
+        let gameOver = false;
+        let shuffledQuestions = [];
+
+        highScoreDisplay.textContent = highScore;
+
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function init() {
+            currentQuestion = 0;
+            score = 0;
+            gameOver = false;
+            gameRunning = false;
+            shuffledQuestions = shuffle(questions);
+            scoreDisplay.textContent = '0';
+            questionNumDisplay.textContent = '1';
+            gameOverOverlay.style.display = 'none';
+            questionText.textContent = 'PRESS START TO BEGIN';
+            optionsGrid.innerHTML = '';
+        }
+
+        function loadQuestion() {
+            const q = shuffledQuestions[currentQuestion];
+            questionText.textContent = q.q;
+            questionNumDisplay.textContent = currentQuestion + 1;
+            optionsGrid.innerHTML = '';
+
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.addEventListener('click', () => handleAnswer(index));
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex) {
+            if (!gameRunning || gameOver) return;
+
+            const q = shuffledQuestions[currentQuestion];
+            const buttons = optionsGrid.querySelectorAll('.option-btn');
+
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === q.answer) btn.classList.add('correct');
+                if (idx === selectedIndex && selectedIndex !== q.answer) btn.classList.add('wrong');
+            });
+
+            if (selectedIndex === q.answer) {
+                score++;
+                scoreDisplay.textContent = score;
+            }
+
+            currentQuestion++;
+
+            if (currentQuestion >= shuffledQuestions.length) {
+                setTimeout(endGame, 1000);
+            } else {
+                setTimeout(loadQuestion, 1000);
+            }
+        }
+
+        function startGame() {
+            if (gameRunning) return;
+            init();
+            gameRunning = true;
+            startBtn.textContent = 'PLAYING';
+            startBtn.disabled = true;
+            loadQuestion();
+        }
+
+        function endGame() {
+            gameOver = true;
+            gameRunning = false;
+            if (score > highScore) {
+                highScore = score;
+                highScoreDisplay.textContent = highScore;
+                localStorage.setItem('quizHighScore', highScore);
+            }
+            finalScoreDisplay.textContent = score;
+            gameOverOverlay.style.display = 'flex';
+            startBtn.textContent = 'START';
+            startBtn.disabled = false;
+        }
+
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', () => {
+            gameOverOverlay.style.display = 'none';
+            startGame();
+        });
+
+        init();
+    </script>
+</body>
+</html>
