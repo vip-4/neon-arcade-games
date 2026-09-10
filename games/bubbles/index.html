@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NEON BUBBLES // CYBERPUNK BUBBLE GAME</title>
+    <meta name="description" content="NEON BUBBLES is a fast-paced cyberpunk bubble shooter game. Match 3 or more neon bubbles to score points. Free browser-based puzzle game.">
+    <meta name="keywords" content="bubble shooter, cyberpunk game, browser game, neon game, match 3 game, free online game, static HTML game, puzzle game">
+    <meta name="author" content="Neon Arcade">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://neon-bubbles.pages.dev/">
+    <meta property="og:title" content="NEON BUBBLES - Cyberpunk Bubble Shooter">
+    <meta property="og:description" content="Match 3 or more neon bubbles in this fast-paced bubble shooter game.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://neon-bubbles.pages.dev/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="NEON BUBBLES - Cyberpunk Bubble Shooter">
+    <meta name="twitter:description" content="Match 3 or more neon bubbles.">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+        :root {
+            --neon-cyan: #0ff;
+            --neon-magenta: #f0f;
+            --neon-yellow: #ff0;
+            --neon-purple: #b0f;
+            --dark-bg: #0a0a0f;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--dark-bg);
+            color: var(--neon-cyan);
+            font-family: 'Share Tech Mono', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .chromatic-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0.05em 0 0 rgba(255,0,0,0.75), -0.05em -0.025em 0 rgba(0,255,255,0.75), 0.025em 0.05em 0 rgba(0,255,0,0.75);
+            animation: glitch 2s infinite linear alternate-reverse;
+        }
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+        .subtitle {
+            font-size: 1rem;
+            color: var(--neon-magenta);
+            margin-top: 0.5rem;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            text-shadow: 0.05em 0 0 rgba(255,0,255,0.5), -0.05em 0 0 rgba(0,255,255,0.5);
+        }
+        .game-container {
+            background: #000;
+            border: 3px solid var(--neon-cyan);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 0 30px rgba(0,255,255,0.3), inset 0 0 20px rgba(0,255,255,0.1);
+            position: relative;
+        }
+        .game-container::before {
+            content: "";
+            position: absolute;
+            top: -3px; left: -3px; right: -3px; bottom: -3px;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta), var(--neon-yellow), var(--neon-cyan));
+            background-size: 400% 400%;
+            border-radius: 18px;
+            z-index: -1;
+            animation: borderGlow 4s ease infinite;
+        }
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; opacity: 0.5; }
+            50% { background-position: 100% 50%; opacity: 1; }
+        }
+        #gameCanvas {
+            display: block;
+            background: #050508;
+            border: 2px solid var(--neon-purple);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(176,0,255,0.4);
+            cursor: pointer;
+        }
+        .info-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding: 0.8rem;
+            background: rgba(0,255,255,0.05);
+            border: 1px dashed var(--neon-cyan);
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .score-display {
+            font-size: 1.3rem;
+            color: var(--neon-yellow);
+            font-weight: 700;
+            text-shadow: 0.05em 0 0 rgba(255,255,0,0.75), -0.05em 0 0 rgba(255,0,255,0.75);
+        }
+        .high-score {
+            font-size: 1rem;
+            color: var(--neon-magenta);
+        }
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        .btn {
+            background: transparent;
+            border: 2px solid var(--neon-yellow);
+            color: var(--neon-yellow);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            text-shadow: 0 0 10px var(--neon-yellow);
+            box-shadow: 0 0 15px rgba(255,255,0,0.3);
+            border-radius: 8px;
+        }
+        .btn:hover { background: var(--neon-yellow); color: #000; box-shadow: 0 0 30px rgba(255,255,0,0.8); }
+        .instructions {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--neon-cyan);
+            opacity: 0.8;
+            text-align: center;
+            line-height: 1.6;
+        }
+        .game-over-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            z-index: 100;
+            display: none;
+        }
+        .game-over-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--neon-yellow);
+            text-shadow: 0.05em 0 0 rgba(255,0,0,0.75), -0.05em -0.025em 0 rgba(0,255,255,0.75), 0.025em 0.05em 0 rgba(0,255,0,0.75);
+            animation: glitch 0.5s infinite;
+        }
+        .final-score {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: var(--neon-magenta);
+            margin-top: 1rem;
+        }
+        @media (max-width: 640px) {
+            .chromatic-text { font-size: 2rem; }
+            .subtitle { font-size: 0.8rem; letter-spacing: 0.3em; }
+            .game-container { padding: 1rem; }
+            #gameCanvas { width: 100%; height: auto; }
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center;">
+        <div class="chromatic-text">NEON BUBBLES</div>
+        <div class="subtitle">CYBERPUNK EDITION</div>
+    </div>
+
+    <div class="game-container">
+        <canvas id="gameCanvas" width="480" height="480"></canvas>
+        <div class="info-panel">
+            <div class="score-display">SCORE: <span id="score">0</span></div>
+            <div class="score-display">COMBO: <span id="combo">0</span>x</div>
+            <div class="high-score">BEST: <span id="highScore">0</span></div>
+        </div>
+        <div class="controls">
+            <button class="btn" id="startBtn">START</button>
+        </div>
+        <div class="instructions">
+            AIM AND CLICK/TAP TO SHOOT BUBBLES<br>
+            MATCH 3 OR MORE SAME-COLOR BUBBLES TO SCORE
+        </div>
+        <div class="game-over-overlay" id="gameOverOverlay">
+            <div class="game-over-text">GAME OVER</div>
+            <div class="final-score">SCORE: <span id="finalScore">0</span></div>
+            <button class="btn" id="restartBtn" style="margin-top: 1.5rem;">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score');
+        const comboDisplay = document.getElementById('combo');
+        const highScoreDisplay = document.getElementById('highScore');
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const gameOverOverlay = document.getElementById('gameOverOverlay');
+        const finalScoreDisplay = document.getElementById('finalScore');
+
+        const BUBBLE_RADIUS = 18;
+        const ROWS = 6;
+        const COLS = 8;
+        const COLORS = ['#0ff', '#f0f', '#ff0', '#b0f', '#0f0'];
+        const EMPTY = null;
+
+        let grid = [];
+        let shooter = { x: canvas.width / 2, y: canvas.height - 40, color: COLORS[0] };
+        let nextColor = COLORS[0];
+        let score = 0;
+        let combo = 0;
+        let highScore = parseInt(localStorage.getItem('bubblesHighScore')) || 0;
+        let gameRunning = false;
+        let gameOver = false;
+        let animationId = null;
+
+        highScoreDisplay.textContent = highScore;
+
+        function initGrid() {
+            grid = [];
+            for (let r = 0; r < ROWS; r++) {
+                grid[r] = [];
+                for (let c = 0; c < COLS; c++) {
+                    grid[r][c] = COLORS[Math.floor(Math.random() * COLORS.length)];
+                }
+            }
+        }
+
+        function resetGame() {
+            initGrid();
+            shooter.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+            nextColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+            score = 0;
+            combo = 0;
+            gameOver = false;
+            scoreDisplay.textContent = '0';
+            comboDisplay.textContent = '0';
+            gameOverOverlay.style.display = 'none';
+            draw();
+        }
+
+        function drawBubble(x, y, color, radius = BUBBLE_RADIUS) {
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 15;
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+
+        function draw() {
+            ctx.fillStyle = '#050508';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (grid[r][c] !== EMPTY) {
+                        const x = c * BUBBLE_RADIUS * 2 + BUBBLE_RADIUS;
+                        const y = r * BUBBLE_RADIUS * 2 + BUBBLE_RADIUS + 20;
+                        drawBubble(x, y, grid[r][c]);
+                    }
+                }
+            }
+
+            drawBubble(shooter.x, shooter.y, shooter.color, BUBBLE_RADIUS + 4);
+        }
+
+        function shoot(e) {
+            if (!gameRunning || gameOver) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const clickX = (e.clientX - rect.left) * scaleX;
+            const clickY = (e.clientY - rect.top) * scaleY;
+
+            const dx = clickX - shooter.x;
+            const dy = clickY - shooter.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist === 0) return;
+
+            const dirX = dx / dist;
+            const dirY = dy / dist;
+
+            let bx = shooter.x;
+            let by = shooter.y;
+            let row = -1;
+            let col = -1;
+
+            while (by > 0) {
+                bx += dirX * 5;
+                by += dirY * 5;
+
+                if (bx < BUBBLE_RADIUS || bx > canvas.width - BUBBLE_RADIUS) {
+                    dirX *= -1;
+                }
+
+                const gridRow = Math.floor((by - 20) / (BUBBLE_RADIUS * 2));
+                const gridCol = Math.floor(bx / (BUBBLE_RADIUS * 2));
+
+                if (gridRow >= 0 && gridRow < ROWS && gridCol >= 0 && gridCol < COLS && grid[gridRow][gridCol] !== EMPTY) {
+                    row = gridRow;
+                    col = gridCol;
+                    break;
+                }
+            }
+
+            if (row >= 0 && row < ROWS && col >= 0 && col < COLS) {
+                grid[row][col] = shooter.color;
+                const matched = findMatches(row, col, shooter.color);
+                if (matched.length >= 3) {
+                    combo++;
+                    comboDisplay.textContent = combo;
+                    const points = matched.length * 10 * combo;
+                    score += points;
+                    scoreDisplay.textContent = score;
+                    matched.forEach(([r, c]) => grid[r][c] = EMPTY);
+                } else {
+                    combo = 0;
+                    comboDisplay.textContent = combo;
+                }
+            }
+
+            shooter.color = nextColor;
+            nextColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+            draw();
+
+            if (checkGameOver()) {
+                endGame();
+            }
+        }
+
+        function findMatches(row, col, color) {
+            const matches = [];
+            const visited = new Set();
+
+            function dfs(r, c) {
+                if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;
+                if (visited.has(r + ',' + c)) return;
+                if (grid[r][c] !== color) return;
+
+                visited.add(r + ',' + c);
+                matches.push([r, c]);
+                dfs(r - 1, c);
+                dfs(r + 1, c);
+                dfs(r, c - 1);
+                dfs(r, c + 1);
+            }
+
+            dfs(row, col);
+            return matches;
+        }
+
+        function checkGameOver() {
+            for (let c = 0; c < COLS; c++) {
+                if (grid[ROWS - 1][c] !== EMPTY) return true;
+            }
+            return false;
+        }
+
+        function startGame() {
+            if (gameRunning) return;
+            gameRunning = true;
+            startBtn.textContent = 'PLAYING';
+            startBtn.disabled = true;
+            resetGame();
+        }
+
+        function endGame() {
+            gameOver = true;
+            gameRunning = false;
+            if (score > highScore) {
+                highScore = score;
+                highScoreDisplay.textContent = highScore;
+                localStorage.setItem('bubblesHighScore', highScore);
+            }
+            finalScoreDisplay.textContent = score;
+            gameOverOverlay.style.display = 'flex';
+            startBtn.textContent = 'START';
+            startBtn.disabled = false;
+        }
+
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', () => {
+            gameOverOverlay.style.display = 'none';
+            startGame();
+        });
+        canvas.addEventListener('click', shoot);
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!gameRunning || gameOver) {
+                startGame();
+            } else if (e.touches.length > 0) {
+                shoot(e.touches[0]);
+            }
+        }, { passive: false });
+
+        resetGame();
+    </script>
+</body>
+</html>
