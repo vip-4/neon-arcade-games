@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NEON ARCADE // CYBERPUNK GAMES</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --neon-cyan: #0ff;
+            --neon-magenta: #f0f;
+            --neon-yellow: #ff0;
+            --neon-purple: #b0f;
+            --dark-bg: #0a0a0f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--neon-cyan);
+            font-family: 'Share Tech Mono', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.15) 2px,
+                rgba(0, 0, 0, 0.15) 4px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .chromatic-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow:
+                0.05em 0 0 rgba(255, 0, 0, 0.75),
+                -0.05em -0.025em 0 rgba(0, 255, 255, 0.75),
+                0.025em 0.05em 0 rgba(0, 255, 0, 0.75);
+            animation: glitch 2s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--neon-magenta);
+            margin-top: 0.5rem;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            text-shadow:
+                0.05em 0 0 rgba(255, 0, 255, 0.5),
+                -0.05em 0 0 rgba(0, 255, 255, 0.5);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            padding: 3rem 0;
+            position: relative;
+        }
+
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .game-card {
+            background: #000;
+            border: 2px solid var(--neon-cyan);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            box-shadow:
+                0 0 20px rgba(0, 255, 255, 0.2),
+                inset 0 0 20px rgba(0, 255, 255, 0.05);
+        }
+
+        .game-card::before {
+            content: "";
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta), var(--neon-yellow), var(--neon-cyan));
+            background-size: 400% 400%;
+            border-radius: 17px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+            animation: borderGlow 4s ease infinite;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow:
+                0 0 30px rgba(0, 255, 255, 0.4),
+                inset 0 0 30px rgba(0, 255, 255, 0.1);
+        }
+
+        .game-card:hover::before {
+            opacity: 1;
+        }
+
+        .game-icon {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .game-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: #fff;
+            text-shadow:
+                0.05em 0 0 rgba(255, 0, 0, 0.75),
+                -0.05em -0.025em 0 rgba(0, 255, 255, 0.75),
+                0.025em 0.05em 0 rgba(0, 255, 0, 0.75);
+        }
+
+        .game-type {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--neon-magenta);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .game-links {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .link-btn {
+            background: transparent;
+            border: 1px solid var(--neon-yellow);
+            color: var(--neon-yellow);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.4rem 0.8rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s;
+            text-shadow: 0 0 8px var(--neon-yellow);
+            box-shadow: 0 0 10px rgba(255, 255, 0, 0.2);
+        }
+
+        .link-btn:hover {
+            background: var(--neon-yellow);
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 255, 0, 0.6);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 3rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(0, 255, 255, 0.2);
+            color: var(--neon-magenta);
+            font-size: 0.9rem;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; opacity: 0.5; }
+            50% { background-position: 100% 50%; opacity: 1; }
+        }
+
+        @media (max-width: 640px) {
+            .chromatic-text {
+                font-size: 2.2rem;
+            }
+            .subtitle {
+                font-size: 0.9rem;
+                letter-spacing: 0.3em;
+            }
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="chromatic-text">NEON ARCADE</div>
+            <div class="subtitle">CYBERPUNK GAME COLLECTION</div>
+        </div>
+
+        <div class="games-grid">
+            <a href="https://cyberpunkslotgame.pages.dev" class="game-card" target="_blank" rel="noopener">
+                <div class="game-icon">🎰</div>
+                <div class="game-title">NEON SLOTS</div>
+                <div class="game-type">Slot Machine</div>
+                <div class="game-links">
+                    <span class="link-btn">PLAY NOW</span>
+                </div>
+            </a>
+
+            <a href="https://43995ce5.neon-snake-avb.pages.dev" class="game-card" target="_blank" rel="noopener">
+                <div class="game-icon">🐍</div>
+                <div class="game-title">NEON SNAKE</div>
+                <div class="game-type">Arcade</div>
+                <div class="game-links">
+                    <span class="link-btn">PLAY NOW</span>
+                </div>
+            </a>
+
+            <a href="https://7539bbe6.neon-2048-1ly.pages.dev" class="game-card" target="_blank" rel="noopener">
+                <div class="game-icon">🔢</div>
+                <div class="game-title">NEON 2048</div>
+                <div class="game-type">Puzzle</div>
+                <div class="game-links">
+                    <span class="link-btn">PLAY NOW</span>
+                </div>
+            </a>
+
+            <a href="https://3c854100.neon-flappy.pages.dev" class="game-card" target="_blank" rel="noopener">
+                <div class="game-icon">🕹️</div>
+                <div class="game-title">NEON FLAP</div>
+                <div class="game-type">Action</div>
+                <div class="game-links">
+                    <span class="link-btn">PLAY NOW</span>
+                </div>
+            </a>
+
+            <a href="https://b0747979.neon-breakout-4md.pages.dev" class="game-card" target="_blank" rel="noopener">
+                <div class="game-icon">🧱</div>
+                <div class="game-title">NEON BREAKOUT</div>
+                <div class="game-type">Arcade</div>
+                <div class="game-links">
+                    <span class="link-btn">PLAY NOW</span>
+                </div>
+            </a>
+
+            <a href="https://22da44a0.neon-memory.pages.dev" class="game-card" target="_blank" rel="noopener">
+                <div class="game-icon">🧩</div>
+                <div class="game-title">NEON MEMORY</div>
+                <div class="game-type">Memory</div>
+                <div class="game-links">
+                    <span class="link-btn">PLAY NOW</span>
+                </div>
+            </a>
+
+            <a href="https://cba969d6.neon-pong-ev2.pages.dev" class="game-card" target="_blank" rel="noopener">
+                <div class="game-icon">🏓</div>
+                <div class="game-title">NEON PONG</div>
+                <div class="game-type">Versus</div>
+                <div class="game-links">
+                    <span class="link-btn">PLAY NOW</span>
+                </div>
+            </a>
+
+            <a href="https://166baadc.neon-tictactoe-48v.pages.dev" class="game-card" target="_blank" rel="noopener">
+                <div class="game-icon">✖️</div>
+                <div class="game-title">NEON TIC-TAC-TOE</div>
+                <div class="game-type">Strategy</div>
+                <div class="game-links">
+                    <span class="link-btn">PLAY NOW</span>
+                </div>
+            </a>
+
+            <a href="https://5798fd62.neon-dodge-2v1.pages.dev" class="game-card" target="_blank" rel="noopener">
+                <div class="game-icon">💠</div>
+                <div class="game-title">NEON DODGE</div>
+                <div class="game-type">Survival</div>
+                <div class="game-links">
+                    <span class="link-btn">PLAY NOW</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="footer">
+            <p>NEON ARCADE // LIGHTWEIGHT STATIC GAMES</p>
+            <p style="margin-top: 0.5rem; opacity: 0.7;">POWERED BY CLOUDFLARE PAGES</p>
+        </div>
+    </div>
+</body>
+</html>
