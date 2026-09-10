@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NEON SIMON // CYBERPUNK</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --neon-cyan: #0ff;
+            --neon-magenta: #f0f;
+            --neon-yellow: #ff0;
+            --neon-purple: #b0f;
+            --dark-bg: #0a0a0f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--neon-cyan);
+            font-family: 'Share Tech Mono', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.15) 2px,
+                rgba(0, 0, 0, 0.15) 4px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .chromatic-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow:
+                0.05em 0 0 rgba(255, 0, 0, 0.75),
+                -0.05em -0.025em 0 rgba(0, 255, 255, 0.75),
+                0.025em 0.05em 0 rgba(0, 255, 0, 0.75);
+            animation: glitch 2s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--neon-magenta);
+            margin-top: 0.5rem;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            text-shadow:
+                0.05em 0 0 rgba(255, 0, 255, 0.5),
+                -0.05em 0 0 rgba(0, 255, 255, 0.5);
+        }
+
+        .game-container {
+            background: #000;
+            border: 3px solid var(--neon-cyan);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow:
+                0 0 30px rgba(0, 255, 255, 0.3),
+                inset 0 0 20px rgba(0, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .game-container::before {
+            content: "";
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta), var(--neon-yellow), var(--neon-cyan));
+            background-size: 400% 400%;
+            border-radius: 18px;
+            z-index: -1;
+            animation: borderGlow 4s ease infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; opacity: 0.5; }
+            50% { background-position: 100% 50%; opacity: 1; }
+        }
+
+        .info-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 0.8rem;
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px dashed var(--neon-cyan);
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .score-display {
+            font-size: 1.3rem;
+            color: var(--neon-yellow);
+            font-weight: 700;
+            text-shadow:
+                0.05em 0 0 rgba(255, 255, 0, 0.75),
+                -0.05em 0 0 rgba(255, 0, 255, 0.75);
+        }
+
+        .simon-board {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto;
+        }
+
+        .simon-btn {
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.1s;
+            position: relative;
+            box-shadow: 0 0 15px currentColor;
+        }
+
+        .simon-btn:active {
+            transform: scale(0.95);
+        }
+
+        .simon-btn.active {
+            filter: brightness(2);
+            box-shadow: 0 0 40px currentColor;
+        }
+
+        .simon-btn.disabled {
+            pointer-events: none;
+        }
+
+        .btn-top-left {
+            background: rgba(0, 255, 255, 0.3);
+            color: var(--neon-cyan);
+            border-top-left-radius: 100%;
+        }
+
+        .btn-top-right {
+            background: rgba(255, 0, 255, 0.3);
+            color: var(--neon-magenta);
+            border-top-right-radius: 100%;
+        }
+
+        .btn-bottom-left {
+            background: rgba(255, 255, 0, 0.3);
+            color: var(--neon-yellow);
+            border-bottom-left-radius: 100%;
+        }
+
+        .btn-bottom-right {
+            background: rgba(176, 0, 255, 0.3);
+            color: var(--neon-purple);
+            border-bottom-right-radius: 100%;
+        }
+
+        .center-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background: #000;
+            border: 3px solid var(--neon-cyan);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #fff;
+            z-index: 10;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .board-wrapper {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+        }
+
+        .btn {
+            background: transparent;
+            border: 2px solid var(--neon-yellow);
+            color: var(--neon-yellow);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            text-shadow: 0 0 10px var(--neon-yellow);
+            box-shadow: 0 0 15px rgba(255, 255, 0, 0.3);
+            border-radius: 8px;
+        }
+
+        .btn:hover {
+            background: var(--neon-yellow);
+            color: #000;
+            box-shadow: 0 0 30px rgba(255, 255, 0, 0.8);
+        }
+
+        .instructions {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--neon-cyan);
+            opacity: 0.8;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .game-over-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            z-index: 100;
+            display: none;
+        }
+
+        .game-over-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--neon-yellow);
+            text-shadow:
+                0.05em 0 0 rgba(255, 0, 0, 0.75),
+                -0.05em -0.025em 0 rgba(0, 255, 255, 0.75),
+                0.025em 0.05em 0 rgba(0, 255, 0, 0.75);
+            animation: glitch 0.5s infinite;
+        }
+
+        .final-score {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: var(--neon-magenta);
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .chromatic-text {
+                font-size: 2rem;
+            }
+            .subtitle {
+                font-size: 0.8rem;
+                letter-spacing: 0.3em;
+            }
+            .game-container {
+                padding: 1rem;
+            }
+            .simon-board {
+                width: 240px;
+                height: 240px;
+            }
+            .board-wrapper {
+                width: 240px;
+                height: 240px;
+            }
+            .center-circle {
+                width: 80px;
+                height: 80px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center;">
+        <div class="chromatic-text">NEON SIMON</div>
+        <div class="subtitle">CYBERPUNK EDITION</div>
+    </div>
+
+    <div class="game-container">
+        <div class="info-panel">
+            <div class="score-display">LEVEL: <span id="level">0</span></div>
+            <div class="score-display">BEST: <span id="highScore">0</span></div>
+        </div>
+        <div class="board-wrapper">
+            <div class="simon-board">
+                <button class="simon-btn btn-top-left disabled" data-color="cyan"></button>
+                <button class="simon-btn btn-top-right disabled" data-color="magenta"></button>
+                <button class="simon-btn btn-bottom-left disabled" data-color="yellow"></button>
+                <button class="simon-btn btn-bottom-right disabled" data-color="purple"></button>
+            </div>
+            <div class="center-circle" id="centerCircle">START</div>
+        </div>
+        <div class="controls">
+            <button class="btn" id="startBtn">START</button>
+        </div>
+        <div class="instructions">
+            WATCH THE PATTERN • REPEAT IT BACK<br>
+            USE MOUSE OR TOUCH TO PRESS COLORS
+        </div>
+        <div class="game-over-overlay" id="gameOverOverlay">
+            <div class="game-over-text">GAME OVER</div>
+            <div class="final-score">REACHED LEVEL: <span id="finalLevel">0</span></div>
+            <button class="btn" id="restartBtn" style="margin-top: 1.5rem;">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        const buttons = document.querySelectorAll('.simon-btn');
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const centerCircle = document.getElementById('centerCircle');
+        const levelDisplay = document.getElementById('level');
+        const highScoreDisplay = document.getElementById('highScore');
+        const gameOverOverlay = document.getElementById('gameOverOverlay');
+        const finalLevelDisplay = document.getElementById('finalLevel');
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const frequencies = { cyan: 220, magenta: 330, yellow: 440, purple: 550 };
+        let sequence = [];
+        let playerSequence = [];
+        let level = 0;
+        let highScore = parseInt(localStorage.getItem('simonHighScore')) || 0;
+        let isPlaying = false;
+        let isShowingSequence = false;
+        let gameOver = false;
+
+        highScoreDisplay.textContent = highScore;
+
+        function playTone(color, duration = 300) {
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.frequency.value = frequencies[color];
+            oscillator.type = 'square';
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration / 1000);
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + duration / 1000);
+        }
+
+        function flashButton(color, duration = 300) {
+            const btn = document.querySelector(`[data-color="${color}"]`);
+            btn.classList.add('active');
+            playTone(color, duration);
+            setTimeout(() => btn.classList.remove('active'), duration);
+        }
+
+        function addToSequence() {
+            const colors = ['cyan', 'magenta', 'yellow', 'purple'];
+            sequence.push(colors[Math.floor(Math.random() * colors.length)]);
+        }
+
+        async function playSequence() {
+            isShowingSequence = true;
+            setButtonsEnabled(false);
+            await sleep(500);
+
+            for (let i = 0; i < sequence.length; i++) {
+                flashButton(sequence[i]);
+                await sleep(500);
+            }
+
+            isShowingSequence = false;
+            setButtonsEnabled(true);
+        }
+
+        function setButtonsEnabled(enabled) {
+            buttons.forEach(btn => {
+                if (enabled) btn.classList.remove('disabled');
+                else btn.classList.add('disabled');
+            });
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function startGame() {
+            if (isPlaying) return;
+            sequence = [];
+            playerSequence = [];
+            level = 0;
+            gameOver = false;
+            isPlaying = true;
+            centerCircle.textContent = '';
+            gameOverOverlay.style.display = 'none';
+            nextRound();
+        }
+
+        function nextRound() {
+            playerSequence = [];
+            level++;
+            levelDisplay.textContent = level;
+            addToSequence();
+            playSequence();
+        }
+
+        function handleButtonClick(color) {
+            if (!isPlaying || isShowingSequence || gameOver) return;
+
+            flashButton(color, 150);
+            playerSequence.push(color);
+
+            const currentIndex = playerSequence.length - 1;
+            if (playerSequence[currentIndex] !== sequence[currentIndex]) {
+                endGame();
+                return;
+            }
+
+            if (playerSequence.length === sequence.length) {
+                setButtonsEnabled(false);
+                setTimeout(nextRound, 1000);
+            }
+        }
+
+        function endGame() {
+            gameOver = true;
+            isPlaying = false;
+            setButtonsEnabled(false);
+            playTone('magenta', 500);
+
+            if (level > highScore) {
+                highScore = level;
+                highScoreDisplay.textContent = highScore;
+                localStorage.setItem('simonHighScore', highScore);
+            }
+
+            finalLevelDisplay.textContent = level;
+            gameOverOverlay.style.display = 'flex';
+            centerCircle.textContent = 'START';
+        }
+
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                handleButtonClick(btn.dataset.color);
+            });
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                handleButtonClick(btn.dataset.color);
+            });
+        });
+
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', startGame);
+
+        centerCircle.addEventListener('click', startGame);
+    </script>
+</body>
+</html>
