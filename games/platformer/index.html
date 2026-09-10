@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NEON PLATFORMER // CYBERPUNK</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --neon-cyan: #0ff;
+            --neon-magenta: #f0f;
+            --neon-yellow: #ff0;
+            --neon-purple: #b0f;
+            --dark-bg: #0a0a0f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--neon-cyan);
+            font-family: 'Share Tech Mono', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.15) 2px,
+                rgba(0, 0, 0, 0.15) 4px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .chromatic-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow:
+                0.05em 0 0 rgba(255, 0, 0, 0.75),
+                -0.05em -0.025em 0 rgba(0, 255, 255, 0.75),
+                0.025em 0.05em 0 rgba(0, 255, 0, 0.75);
+            animation: glitch 2s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--neon-magenta);
+            margin-top: 0.5rem;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            text-shadow:
+                0.05em 0 0 rgba(255, 0, 255, 0.5),
+                -0.05em 0 0 rgba(0, 255, 255, 0.5);
+        }
+
+        .game-container {
+            background: #000;
+            border: 3px solid var(--neon-cyan);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow:
+                0 0 30px rgba(0, 255, 255, 0.3),
+                inset 0 0 20px rgba(0, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .game-container::before {
+            content: "";
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta), var(--neon-yellow), var(--neon-cyan));
+            background-size: 400% 400%;
+            border-radius: 18px;
+            z-index: -1;
+            animation: borderGlow 4s ease infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; opacity: 0.5; }
+            50% { background-position: 100% 50%; opacity: 1; }
+        }
+
+        #gameCanvas {
+            display: block;
+            background: #050508;
+            border: 2px solid var(--neon-purple);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(176, 0, 255, 0.4);
+        }
+
+        .info-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding: 0.8rem;
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px dashed var(--neon-cyan);
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .score-display {
+            font-size: 1.3rem;
+            color: var(--neon-yellow);
+            font-weight: 700;
+            text-shadow:
+                0.05em 0 0 rgba(255, 255, 0, 0.75),
+                -0.05em 0 0 rgba(255, 0, 255, 0.75);
+        }
+
+        .high-score {
+            font-size: 1rem;
+            color: var(--neon-magenta);
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            background: transparent;
+            border: 2px solid var(--neon-yellow);
+            color: var(--neon-yellow);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            text-shadow: 0 0 10px var(--neon-yellow);
+            box-shadow: 0 0 15px rgba(255, 255, 0, 0.3);
+            border-radius: 8px;
+        }
+
+        .btn:hover {
+            background: var(--neon-yellow);
+            color: #000;
+            box-shadow: 0 0 30px rgba(255, 255, 0, 0.8);
+        }
+
+        .instructions {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--neon-cyan);
+            opacity: 0.8;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .game-over-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            z-index: 100;
+            display: none;
+        }
+
+        .game-over-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--neon-yellow);
+            text-shadow:
+                0.05em 0 0 rgba(255, 0, 0, 0.75),
+                -0.05em -0.025em 0 rgba(0, 255, 255, 0.75),
+                0.025em 0.05em 0 rgba(0, 255, 0, 0.75);
+            animation: glitch 0.5s infinite;
+        }
+
+        .final-score {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: var(--neon-magenta);
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .chromatic-text {
+                font-size: 2rem;
+            }
+            .subtitle {
+                font-size: 0.8rem;
+                letter-spacing: 0.3em;
+            }
+            .game-container {
+                padding: 1rem;
+            }
+            #gameCanvas {
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center;">
+        <div class="chromatic-text">NEON JUMP</div>
+        <div class="subtitle">CYBERPUNK EDITION</div>
+    </div>
+
+    <div class="game-container">
+        <canvas id="gameCanvas" width="600" height="400"></canvas>
+        <div class="info-panel">
+            <div class="score-display">SCORE: <span id="score">0</span></div>
+            <div class="high-score">BEST: <span id="highScore">0</span></div>
+        </div>
+        <div class="controls">
+            <button class="btn" id="startBtn">START</button>
+            <button class="btn" id="pauseBtn">PAUSE</button>
+        </div>
+        <div class="instructions">
+            SPACE / CLICK / TAP TO JUMP<br>
+            AVOID OBSTACLES • REACH THE GOAL
+        </div>
+        <div class="game-over-overlay" id="gameOverOverlay">
+            <div class="game-over-text" id="gameOverText">GAME OVER</div>
+            <div class="final-score">SCORE: <span id="finalScore">0</span></div>
+            <button class="btn" id="restartBtn" style="margin-top: 1.5rem;">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score');
+        const highScoreDisplay = document.getElementById('highScore');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const gameOverOverlay = document.getElementById('gameOverOverlay');
+        const gameOverText = document.getElementById('gameOverText');
+        const finalScoreDisplay = document.getElementById('finalScore');
+
+        const GRAVITY = 0.6;
+        const JUMP_STRENGTH = -12;
+        const GROUND_Y = 340;
+
+        let player = { x: 50, y: GROUND_Y, width: 30, height: 40, velocityY: 0, isJumping: false };
+        let obstacles = [];
+        let particles = [];
+        let score = 0;
+        let highScore = parseInt(localStorage.getItem('jumpHighScore')) || 0;
+        let gameRunning = false;
+        let isPaused = false;
+        let gameOver = false;
+        let animationId = null;
+        let frameCount = 0;
+        let spawnTimer = 0;
+
+        highScoreDisplay.textContent = highScore;
+
+        function resetGame() {
+            player.y = GROUND_Y;
+            player.velocityY = 0;
+            player.isJumping = false;
+            obstacles = [];
+            particles = [];
+            score = 0;
+            frameCount = 0;
+            spawnTimer = 0;
+            gameOver = false;
+            isPaused = false;
+            scoreDisplay.textContent = '0';
+            gameOverOverlay.style.display = 'none';
+            pauseBtn.textContent = 'PAUSE';
+            draw();
+        }
+
+        function jump() {
+            if (!player.isJumping && gameRunning && !gameOver) {
+                player.velocityY = JUMP_STRENGTH;
+                player.isJumping = true;
+            }
+        }
+
+        function spawnObstacle() {
+            const types = [
+                { width: 20, height: 40, color: '#f0f' },
+                { width: 30, height: 30, color: '#ff0' },
+                { width: 15, height: 50, color: '#b0f' }
+            ];
+            const type = types[Math.floor(Math.random() * types.length)];
+            obstacles.push({
+                x: canvas.width,
+                y: GROUND_Y + 40 - type.height,
+                width: type.width,
+                height: type.height,
+                color: type.color,
+                passed: false
+            });
+        }
+
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 8; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    dx: (Math.random() - 0.5) * 4,
+                    dy: (Math.random() - 0.5) * 4,
+                    life: 30,
+                    color: color
+                });
+            }
+        }
+
+        function update() {
+            if (!gameRunning || isPaused) return;
+
+            frameCount++;
+
+            player.velocityY += GRAVITY;
+            player.y += player.velocityY;
+
+            if (player.y >= GROUND_Y) {
+                player.y = GROUND_Y;
+                player.velocityY = 0;
+                player.isJumping = false;
+            }
+
+            spawnTimer++;
+            if (spawnTimer > Math.max(60, 120 - Math.floor(score / 50) * 10)) {
+                spawnObstacle();
+                spawnTimer = 0;
+            }
+
+            obstacles.forEach(obs => {
+                obs.x -= 4 + Math.floor(score / 100) * 0.5;
+
+                if (!obs.passed && obs.x + obs.width < player.x) {
+                    obs.passed = true;
+                    score += 10;
+                    scoreDisplay.textContent = score;
+                }
+
+                if (
+                    player.x < obs.x + obs.width &&
+                    player.x + player.width > obs.x &&
+                    player.y < obs.y + obs.height &&
+                    player.y + player.height > obs.y
+                ) {
+                    createParticles(player.x + player.width / 2, player.y + player.height / 2, '#ff0');
+                    endGame();
+                }
+            });
+
+            obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
+
+            particles.forEach(p => {
+                p.x += p.dx;
+                p.y += p.dy;
+                p.life--;
+            });
+            particles = particles.filter(p => p.life > 0);
+
+            draw();
+            animationId = requestAnimationFrame(update);
+        }
+
+        function draw() {
+            ctx.fillStyle = '#050508';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 20) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let i = 0; i < canvas.height; i += 20) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+
+            ctx.fillStyle = 'rgba(0, 255, 255, 0.2)';
+            ctx.fillRect(0, GROUND_Y + 40, canvas.width, canvas.height - GROUND_Y - 40);
+
+            ctx.strokeStyle = 'var(--neon-cyan)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, GROUND_Y + 40);
+            ctx.lineTo(canvas.width, GROUND_Y + 40);
+            ctx.stroke();
+
+            ctx.shadowColor = '#0ff';
+            ctx.shadowBlur = 15;
+            ctx.fillStyle = '#0ff';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            ctx.shadowBlur = 0;
+
+            obstacles.forEach(obs => {
+                ctx.shadowColor = obs.color;
+                ctx.shadowBlur = 15;
+                ctx.fillStyle = obs.color;
+                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                ctx.shadowBlur = 0;
+            });
+
+            particles.forEach(p => {
+                ctx.globalAlpha = p.life / 30;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, 4, 4);
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        function startGame() {
+            if (gameRunning && !isPaused) return;
+            if (gameOver) resetGame();
+            if (!gameRunning) {
+                gameRunning = true;
+                startBtn.textContent = 'PLAYING';
+                startBtn.disabled = true;
+            }
+            if (isPaused) {
+                isPaused = false;
+                pauseBtn.textContent = 'PAUSE';
+            }
+            update();
+        }
+
+        function pauseGame() {
+            if (!gameRunning || gameOver) return;
+            isPaused = !isPaused;
+            pauseBtn.textContent = isPaused ? 'RESUME' : 'PAUSE';
+            if (!isPaused) update();
+        }
+
+        function endGame() {
+            gameOver = true;
+            gameRunning = false;
+            cancelAnimationFrame(animationId);
+            if (score > highScore) {
+                highScore = score;
+                highScoreDisplay.textContent = highScore;
+                localStorage.setItem('jumpHighScore', highScore);
+            }
+            finalScoreDisplay.textContent = score;
+            gameOverText.textContent = 'GAME OVER';
+            gameOverOverlay.style.display = 'flex';
+            startBtn.textContent = 'START';
+            startBtn.disabled = false;
+            pauseBtn.textContent = 'PAUSE';
+        }
+
+        function handleKeydown(e) {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (!gameRunning || gameOver) {
+                    startGame();
+                } else {
+                    jump();
+                }
+            }
+            if (e.code === 'KeyP') {
+                e.preventDefault();
+                pauseGame();
+            }
+        }
+
+        function handleClick(e) {
+            e.preventDefault();
+            if (!gameRunning || gameOver) {
+                startGame();
+            } else {
+                jump();
+            }
+        }
+
+        startBtn.addEventListener('click', startGame);
+        pauseBtn.addEventListener('click', pauseGame);
+        restartBtn.addEventListener('click', () => {
+            resetGame();
+            startGame();
+        });
+        document.addEventListener('keydown', handleKeydown);
+        canvas.addEventListener('click', handleClick);
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!gameRunning || gameOver) {
+                startGame();
+            } else {
+                jump();
+            }
+        }, { passive: false });
+
+        resetGame();
+        draw();
+    </script>
+</body>
+</html>
