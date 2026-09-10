@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NEON MEMORY // CYBERPUNK</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --neon-cyan: #0ff;
+            --neon-magenta: #f0f;
+            --neon-yellow: #ff0;
+            --neon-purple: #b0f;
+            --dark-bg: #0a0a0f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--neon-cyan);
+            font-family: 'Share Tech Mono', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.15) 2px,
+                rgba(0, 0, 0, 0.15) 4px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .chromatic-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #fff;
+            text-shadow:
+                0.05em 0 0 rgba(255, 0, 0, 0.75),
+                -0.05em -0.025em 0 rgba(0, 255, 255, 0.75),
+                0.025em 0.05em 0 rgba(0, 255, 0, 0.75);
+            animation: glitch 2s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--neon-magenta);
+            margin-top: 0.5rem;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            text-shadow:
+                0.05em 0 0 rgba(255, 0, 255, 0.5),
+                -0.05em 0 0 rgba(0, 255, 255, 0.5);
+        }
+
+        .game-container {
+            background: #000;
+            border: 3px solid var(--neon-cyan);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow:
+                0 0 30px rgba(0, 255, 255, 0.3),
+                inset 0 0 20px rgba(0, 255, 255, 0.1);
+            position: relative;
+            max-width: 95vw;
+        }
+
+        .game-container::before {
+            content: "";
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta), var(--neon-yellow), var(--neon-cyan));
+            background-size: 400% 400%;
+            border-radius: 18px;
+            z-index: -1;
+            animation: borderGlow 4s ease infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; opacity: 0.5; }
+            50% { background-position: 100% 50%; opacity: 1; }
+        }
+
+        .info-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px dashed var(--neon-cyan);
+            border-radius: 10px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .score-display {
+            font-size: 1.3rem;
+            color: var(--neon-yellow);
+            font-weight: 700;
+            text-shadow:
+                0.05em 0 0 rgba(255, 255, 0, 0.75),
+                -0.05em 0 0 rgba(255, 0, 255, 0.75);
+        }
+
+        .moves-display {
+            font-size: 1rem;
+            color: var(--neon-magenta);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            perspective: 1000px;
+        }
+
+        .card {
+            width: 70px;
+            height: 70px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            border: 2px solid var(--neon-purple);
+            box-shadow: 0 0 15px rgba(176, 0, 255, 0.4);
+        }
+
+        .card-front {
+            background: rgba(0, 255, 255, 0.1);
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan);
+        }
+
+        .card-back {
+            background: rgba(255, 0, 255, 0.15);
+            color: var(--neon-magenta);
+            text-shadow: 0 0 15px var(--neon-magenta);
+            transform: rotateY(180deg);
+        }
+
+        .card.matched .card-back {
+            background: rgba(255, 255, 0, 0.2);
+            color: var(--neon-yellow);
+            text-shadow: 0 0 20px var(--neon-yellow);
+            border-color: var(--neon-yellow);
+            box-shadow: 0 0 25px rgba(255, 255, 0, 0.6);
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            background: transparent;
+            border: 2px solid var(--neon-yellow);
+            color: var(--neon-yellow);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            text-shadow: 0 0 10px var(--neon-yellow);
+            box-shadow: 0 0 15px rgba(255, 255, 0, 0.3);
+            border-radius: 8px;
+        }
+
+        .btn:hover {
+            background: var(--neon-yellow);
+            color: #000;
+            box-shadow: 0 0 30px rgba(255, 255, 0, 0.8);
+        }
+
+        .instructions {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--neon-cyan);
+            opacity: 0.8;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .win-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            z-index: 100;
+            display: none;
+        }
+
+        .win-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--neon-yellow);
+            text-shadow:
+                0.05em 0 0 rgba(255, 0, 0, 0.75),
+                -0.05em -0.025em 0 rgba(0, 255, 255, 0.75),
+                0.025em 0.05em 0 rgba(0, 255, 0, 0.75);
+            animation: glitch 0.5s infinite;
+        }
+
+        .final-stats {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--neon-magenta);
+            margin-top: 1rem;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 640px) {
+            .chromatic-text {
+                font-size: 2rem;
+            }
+            .subtitle {
+                font-size: 0.8rem;
+                letter-spacing: 0.3em;
+            }
+            .game-container {
+                padding: 1rem;
+            }
+            .card {
+                width: 60px;
+                height: 60px;
+            }
+            .grid-container {
+                gap: 8px;
+            }
+            .card-face {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center;">
+        <div class="chromatic-text">NEON MEMORY</div>
+        <div class="subtitle">CYBERPUNK EDITION</div>
+    </div>
+
+    <div class="game-container">
+        <div class="info-panel">
+            <div class="score-display">PAIRS: <span id="pairs">0</span> / 8</div>
+            <div class="moves-display">MOVES: <span id="moves">0</span></div>
+        </div>
+        <div class="grid-container" id="grid"></div>
+        <div class="controls">
+            <button class="btn" id="newGameBtn">NEW GAME</button>
+        </div>
+        <div class="instructions">
+            CLICK CARDS TO FLIP THEM<br>
+            FIND ALL 8 MATCHING PAIRS
+        </div>
+        <div class="win-overlay" id="winOverlay">
+            <div class="win-text">YOU WIN!</div>
+            <div class="final-stats">
+                MOVES: <span id="finalMoves">0</span><br>
+                TIME: <span id="finalTime">0</span>s
+            </div>
+            <button class="btn" id="playAgainBtn" style="margin-top: 1.5rem;">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        const grid = document.getElementById('grid');
+        const pairsDisplay = document.getElementById('pairs');
+        const movesDisplay = document.getElementById('moves');
+        const newGameBtn = document.getElementById('newGameBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        const winOverlay = document.getElementById('winOverlay');
+        const finalMovesDisplay = document.getElementById('finalMoves');
+        const finalTimeDisplay = document.getElementById('finalTime');
+
+        const SYMBOLS = ['★', '⌘', '☢', '⚡', '◎', '♦', '♠', '♣'];
+        let cards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+        let isLocked = false;
+        let startTime = null;
+        let timerInterval = null;
+
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function init() {
+            clearInterval(timerInterval);
+            cards = [];
+            flippedCards = [];
+            matchedPairs = 0;
+            moves = 0;
+            isLocked = false;
+            startTime = Date.now();
+            pairsDisplay.textContent = '0';
+            movesDisplay.textContent = '0';
+            winOverlay.style.display = 'none';
+
+            const symbols = shuffle([...SYMBOLS, ...SYMBOLS]);
+            grid.innerHTML = '';
+
+            symbols.forEach((symbol, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.index = index;
+                card.dataset.symbol = symbol;
+
+                const front = document.createElement('div');
+                front.className = 'card-face card-front';
+                front.textContent = '?';
+
+                const back = document.createElement('div');
+                back.className = 'card-face card-back';
+                back.textContent = symbol;
+
+                card.appendChild(front);
+                card.appendChild(back);
+                grid.appendChild(card);
+                cards.push(card);
+
+                card.addEventListener('click', () => flipCard(card));
+            });
+
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            if (!startTime) return;
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const timerEl = document.getElementById('timer');
+            if (timerEl) timerEl.textContent = elapsed;
+        }
+
+        function flipCard(card) {
+            if (isLocked) return;
+            if (card.classList.contains('flipped')) return;
+            if (card.classList.contains('matched')) return;
+            if (flippedCards.length >= 2) return;
+
+            card.classList.add('flipped');
+            flippedCards.push(card);
+
+            if (flippedCards.length === 2) {
+                moves++;
+                movesDisplay.textContent = moves;
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            isLocked = true;
+            const [card1, card2] = flippedCards;
+            const match = card1.dataset.symbol === card2.dataset.symbol;
+
+            if (match) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedPairs++;
+                pairsDisplay.textContent = matchedPairs;
+                flippedCards = [];
+                isLocked = false;
+
+                if (matchedPairs === SYMBOLS.length) {
+                    endGame();
+                }
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    flippedCards = [];
+                    isLocked = false;
+                }, 800);
+            }
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            finalMovesDisplay.textContent = moves;
+            finalTimeDisplay.textContent = elapsed;
+            winOverlay.style.display = 'flex';
+        }
+
+        newGameBtn.addEventListener('click', init);
+        playAgainBtn.addEventListener('click', init);
+
+        init();
+    </script>
+</body>
+</html>
